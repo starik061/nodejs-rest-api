@@ -54,6 +54,7 @@ const updateContact = async (contactId, { name, email, phone }) => {
   const targetContactIndex = contacts.findIndex(
     (contact) => contact.id === contactId
   );
+
   if (targetContactIndex === -1) {
     return null;
   }
