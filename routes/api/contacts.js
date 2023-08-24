@@ -1,7 +1,9 @@
 const express = require("express");
+const Joi = require("joi");
+
 const contactsAPI = require("../../models/contacts");
 const router = express.Router();
-const Joi = require("joi");
+const { HttpError } = require("../../utils");
 
 const schema = Joi.object({
   name: Joi.string().required(),
@@ -25,9 +27,7 @@ router.get("/:id", async (req, res, next) => {
     const result = await contactsAPI.getContactById(id);
 
     if (!result) {
-      const error = new Error("Contact not found");
-      error.status = 404;
-      throw error;
+      throw HttpError(404, "Contact not found");
     }
 
     res.status(200).json(result);
@@ -40,9 +40,7 @@ router.post("/", async (req, res, next) => {
   try {
     const { error } = schema.validate(req.body);
     if (error) {
-      const err = new Error(error.message);
-      err.status = 400;
-      throw err;
+      throw HttpError(400, error.message);
     }
 
     const result = await contactsAPI.addContact(req.body);
@@ -59,9 +57,7 @@ router.delete("/:id", async (req, res, next) => {
     const result = await contactsAPI.removeContact(id);
 
     if (!result) {
-      const error = new Error("Contact not found");
-      error.status = 404;
-      throw error;
+      throw HttpError(404, "Contact not found");
     }
 
     res.status(200).json("Contact deleted");
@@ -75,16 +71,12 @@ router.put("/:id", async (req, res, next) => {
     const { id } = req.params;
 
     if (!req.body?.name && !req.body?.email && !req.body?.phone) {
-      const error = new Error("Missing fields");
-      error.status = 400;
-      throw error;
+      throw HttpError(400, "Missing fields");
     }
 
     const result = await contactsAPI.updateContact(id, req.body);
     if (!result) {
-      const error = new Error("Not found");
-      error.status = 404;
-      throw error;
+      throw HttpError(404, "Not found");
     }
 
     res.status(200).json(result);
