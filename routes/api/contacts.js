@@ -44,7 +44,7 @@ router.post("/", async (req, res, next) => {
     }
 
     const result = await contactsAPI.addContact(req.body);
-    res.status(200).json(result);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
