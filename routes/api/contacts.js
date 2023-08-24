@@ -5,10 +5,16 @@ const contactsAPI = require("../../models/contacts");
 const router = express.Router();
 const { HttpError } = require("../../utils");
 
-const schema = Joi.object({
+const addContactSchema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().required(),
   phone: Joi.string().required(),
+});
+
+const putContactSchema = Joi.object({
+  name: Joi.string(),
+  email: Joi.string(),
+  phone: Joi.string(),
 });
 
 router.get("/", async (req, res, next) => {
@@ -38,7 +44,7 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const { error } = schema.validate(req.body);
+    const { error } = addContactSchema.validate(req.body);
     if (error) {
       throw HttpError(400, error.message);
     }
@@ -72,6 +78,11 @@ router.put("/:id", async (req, res, next) => {
 
     if (!req.body?.name && !req.body?.email && !req.body?.phone) {
       throw HttpError(400, "Missing fields");
+    }
+
+    const { error } = putContactSchema.validate(req.body);
+    if (error) {
+      throw HttpError(400, error.message);
     }
 
     const result = await contactsAPI.updateContact(id, req.body);
