@@ -1,16 +1,16 @@
-const contactsAPI = require("../models/contacts.js");
+const { Contact } = require("../models/contact");
 const { HttpError } = require("../utils");
 const { ctrlWrapper } = require("../utils");
 
 const getAll = async (req, res) => {
-  const result = await contactsAPI.listContacts();
+  const result = await Contact.find();
   res.status(200).json(result);
 };
 
 const getById = async (req, res) => {
   const { id } = req.params;
 
-  const result = await contactsAPI.getContactById(id);
+  const result = await Contact.findOne({ _id: id }); // or we can use findById if will find by id
 
   if (!result) {
     throw HttpError(404, "Contact not found");
@@ -20,14 +20,14 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const result = await contactsAPI.addContact(req.body);
+  const result = await Contact.create(req.body);
   res.status(201).json(result);
 };
 
 const deleteById = async (req, res) => {
   const { id } = req.params;
 
-  const result = await contactsAPI.removeContact(id);
+  const result = await Contact.findByIdAndRemove(id);
 
   if (!result) {
     throw HttpError(404, "Contact not found");
@@ -39,7 +39,7 @@ const deleteById = async (req, res) => {
 const updateById = async (req, res) => {
   const { id } = req.params;
 
-  const result = await contactsAPI.updateContact(id, req.body);
+  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true }); // findByIdAndUpdate return old object, that is why we need { new: true }
   if (!result) {
     throw HttpError(404, "Not found");
   }
